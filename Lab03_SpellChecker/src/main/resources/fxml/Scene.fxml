@@ -27,7 +27,7 @@
                         <Insets bottom="10.0" left="10.0" right="15.0" top="10.0" />
                      </HBox.margin>
                   </Label>
-                  <ChoiceBox fx:id="choice" accessibleRole="LIST_VIEW">
+                  <ChoiceBox fx:id="choice">
                      <HBox.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </HBox.margin>
