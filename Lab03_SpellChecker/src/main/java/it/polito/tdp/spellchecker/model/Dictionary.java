@@ -7,55 +7,53 @@ import java.util.*;
 
 public class Dictionary {
 	
-	private Set<String> dictionary;
+	private List<String> dictionary;
+	private String language;
 	
 	public Dictionary() {
-		dictionary=new HashSet<String>();
+		
 	}
 
-	public void loadDictionary(String language) {
-		if(language.toLowerCase().equals("english")) {
-			try {
-				FileReader fr= new FileReader("English.txt");
-					BufferedReader br=new BufferedReader(fr);
-				String word;
-				while((word= br.readLine())!=null) {
-					dictionary.add(word);
-				}
-				br.close();
-			}catch(IOException e) {
-				System.out.println("Errore nella lettura del file");
+	public boolean loadDictionary(String language) {
+		
+		if(dictionary!=null && this.language.equals(language))
+			return true;
+		
+
+		try {
+			FileReader fr= new FileReader("src/main/resources/"+language+".txt");
+			BufferedReader br=new BufferedReader(fr);
+			String word;
+			while((word= br.readLine())!=null) {
+				dictionary.add(word.toLowerCase());
 			}
-		}
-		if(language.toLowerCase().equals("italian")) {
-			try {
-				FileReader fr= new FileReader("Italian.txt");
-					BufferedReader br=new BufferedReader(fr);
-				String word;
-				while((word= br.readLine())!=null) {
-					dictionary.add(word);
-				}
-				br.close();
-			}catch(IOException e) {
-				System.out.println("Errore nella lettura del file");
-			}
+			
+			Collections.sort(dictionary);
+			
+			br.close();
+			
+			return true;
+			
+		}catch(IOException e) {
+			System.out.println("Errore nella lettura del file");
+			return false;
 		}
 		
 	}
 
-	public Set<String> getDictionary() {
-		return dictionary;
-	}
 	
 	public List<RichWord> spellCheckText(List<String> inputTextList){
 		RichWord word;
-		List<RichWord> paroleErrate=new ArrayList<RichWord>();
+		List<RichWord> parole=new ArrayList<RichWord>();
 		for(String s:inputTextList) {
-			if(!dictionary.contains(s)) {
-				word=new RichWord(s);
-				paroleErrate.add(word);
+			word=new RichWord(s);
+			if(dictionary.contains(s.toLowerCase())) {
+				word.setCorrect(true);
+			}else {
+				word.setCorrect(false);
 			}	
+			parole.add(word);
 		}
-		return paroleErrate;
+		return parole;
 	}
 }

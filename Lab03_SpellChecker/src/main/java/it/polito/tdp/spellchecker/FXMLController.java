@@ -2,8 +2,10 @@ package it.polito.tdp.spellchecker;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
 import it.polito.tdp.spellchecker.model.Dictionary;
 import it.polito.tdp.spellchecker.model.RichWord;
@@ -20,6 +22,7 @@ public class FXMLController {
 	
 	private ObservableList<String> list=FXCollections.observableArrayList();
 	private Dictionary dictionary;
+	private List<String> inputTextList;
 	 
 
     @FXML
@@ -52,30 +55,55 @@ public class FXMLController {
 
     @FXML
     void doClearText(ActionEvent event) {
-    	txtResult.setText("");
-    	txtInsert.setText("");
+    	txtResult.clear();
+    	txtInsert.clear();
+    	lblErrror.setText("Numbers of errors: ");
     }
 
     @FXML
     void doSpelleCheck(ActionEvent event) {
-    	long start=System.nanoTime();
+    	
     	long end;
+    	
+    	txtResult.clear();
+    	
+    	inputTextList = new LinkedList<String>();
+    	
     	String testo=txtInsert.getText();
-    	List<String> listTesto=new ArrayList<String>();
-    	if(testo==null)
+    	
+    	if(testo.isEmpty()) {
+    		txtResult.setText("Inserire un testo da correggere!");
     		return;
-    	testo.replaceAll("[.,\\/#!$%\\*;:{}=\\-_'()\\[\\]\"]", "");
-    	dictionary.loadDictionary(choice.getValue());
-    	String[] arrayTesto=testo.split(" ");
-    	for(String s:arrayTesto) {
-    		listTesto.add(s);
     	}
+    	
+    	List<String> listTesto=new ArrayList<String>();
+    	
+    	testo=testo.replaceAll("[.,\\/#!$%\\*;:{}=\\-_'()\\[\\]\"]", "");
+    	testo = testo.replaceAll("\n", " ");
+    	
+    	dictionary.loadDictionary(choice.getValue());
+    	
+    	StringTokenizer st = new StringTokenizer(testo, " ");
+		while (st.hasMoreTokens()) {
+			inputTextList.add(st.nextToken());
+		}
+    	
+		long start=System.nanoTime();
+		
     	List<RichWord> risultato=new ArrayList<RichWord>();
     	risultato.addAll(dictionary.spellCheckText(listTesto));
+    	
+    	int numErrori=0;
+    	StringBuilder richText = new StringBuilder();
     	for(RichWord r:risultato) {
-    		txtResult.appendText(r+"\n");
+    		if (!r.isCorrect()) {
+				numErrori++;
+				richText.append(r.getWord() + "\n");
+			}
     	}
-    	lblErrror.setText("The text contains "+risultato.size()+" errors");
+    	
+    	txtResult.setText(richText.toString());
+    	lblErrror.setText("The text contains "+numErrori+" errors");
     	end=System.nanoTime();
     	lblTime.setText("Spellcheck completed in "+(end-start)+" seconds");
     }
@@ -95,7 +123,7 @@ public class FXMLController {
 
     }
     
-    public void setDictionary(Dictionary d) {
+    public void setModel(Dictionary d) {
     	this.dictionary=d;
     }
 }
